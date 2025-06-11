@@ -37,7 +37,9 @@ def get_available_tracks():
     today = datetime.datetime.now().date()
     past = schedule[schedule['EventDate'] < pd.Timestamp(today)]
 
-    
+    print("=== EVENT SCHEDULE ===")
+    print(schedule)
+
     result = [
         {"name": row["EventName"], "year": current_year}
         for _, row in past.iterrows()
@@ -50,7 +52,7 @@ def get_track_position(year, gp, driver):
     session.load()
 
     # Get fastest lap for the given driver
-    lap = session.laps.pick_driver(driver.upper()).pick_fastest()
+    lap = session.laps.pick_drivers([driver.upper()]).pick_fastest()
     pos = lap.get_pos_data()
 
     # Convert to JSON-safe format
@@ -76,14 +78,13 @@ def compare_lines(year, gp, driver1, driver2):
     session.load()
 
     try:
-        lap1 = session.laps.pick_driver(driver1.upper()).pick_fastest()
-        lap2 = session.laps.pick_driver(driver2.upper()).pick_fastest()
+        lap1 = session.laps.pick_drivers([driver1.upper()]).pick_fastest()
+        lap2 = session.laps.pick_drivers([driver2.upper()]).pick_fastest()
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
     tel1 = enrich_with_distance_and_speed(lap1.get_pos_data().copy())
     tel2 = enrich_with_distance_and_speed(lap2.get_pos_data().copy())
-
     # Create common distance array
     dist = np.linspace(0, min(tel1['Distance'].max(), tel2['Distance'].max()), 500)
 
