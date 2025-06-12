@@ -109,6 +109,81 @@ def compare_lines(year, gp, driver1, driver2):
 
     return jsonify(result)
 
+@app.route("/api/compare-head-to-head/<int:year>/<path:gp>/<string:driver1>/<string:driver2>")
+def compare_head_to_head(year, gp, driver1, driver2):
+    from urllib.parse import unquote
+    gp = unquote(gp)
+    session = fastf1.get_session(year, gp, 'R')
+    session.load()
+
+    laps = session.laps.pick_drivers([driver1.upper(), driver2.upper()])
+
+    def summarize(driver):
+        lap = laps.pick_drivers([driver]).pick_fastest()
+        return {
+            "driver": driver.upper(),
+            "lapTime": str(lap.LapTime),
+            "sector1": str(lap.Sector1Time),
+            "sector2": str(lap.Sector2Time),
+            "sector3": str(lap.Sector3Time),
+            "pitStops": laps[(laps.Driver == driver) & (laps.PitInTime.notna())].shape[0]
+        }
+
+    return jsonify({
+        driver1.upper(): summarize(driver1),
+        driver2.upper(): summarize(driver2)
+    })
+
+@app.route("/api/lap-times/<int:year>/<path:gp>/<string:driver>")
+def lap_times(year, gp, driver):
+    from urllib.parse import unquote
+    gp = unquote(gp)
+
+    try:
+        session = fastf1.get_session(year, gp, 'R')
+        session.load()
+        laps = session.laps.pick_drivers([driver.upper()])
+        valid_laps = laps[laps["LapTime"].notna()]
+
+        lap_times = [
+            {"lap": int(row["LapNumber"]), "time": round(row["LapTime"].total_seconds(), 3)}
+            for _, row in valid_laps.iterrows()
+        ]
+
+        return jsonify(lap_times)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/tyre-strategy/<int:year>/<path:gp>")
+def tyre_strategy(year, gp):
+    from urllib.parse import unquote
+    gp = unquote(gp)
+
+    try:
+        session = fastf1.get_session(year, gp, 'R')
+        session.load()
+        stints = session.laps.get_stint_data()
+
+        drivers = stints['Driver'].unique()
+        result = []
+
+        for drv in drivers:
+            drv_stints = stints[stints['Driver'] == drv]
+            segments = []
+            for _, row in drv_stints.iterrows():
+                segments.append({
+                    "compound": row['Compound'],
+                    "laps": int(row['StintLength'])
+                })
+            result.append({
+                "driver": drv,
+                "stints": segments
+            })
+
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug = True)
