@@ -1,11 +1,21 @@
-# F1 Data Dashboard 
+# Formulytics - F1 Data Dashboard 
 
 A full-stack dashboard using FastF1 (Python) and React.js to visualize Formula 1 race data, telemetry, and strategy insights.
 
-## Tech Stack
+## Features
+- Fastest lap analysis for the current 2025 F1 season
+- Driver comparisons (lap deltas, sector times)
+- Positional tracking of drivers throughout the race
+- Tire strategy (coming soon!)
+
+## Tech  & Architecture
 - Flask (Python) for backend API
-- FastF1 + Pandas for F1 data
 - React for frontend UI
+- FastF1 used to extract F1 data 
+- Data processing and transformation with Pandas & Matplotlib
+- RESTful APIs connecting frontend and backend
+- Explored caching strategies to reduce FastF1 latency
+
 
 ## Run Locally
 ```bash
