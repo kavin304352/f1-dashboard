@@ -6,7 +6,7 @@ function MainMenu() {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '5rem' }}>
-      <h1 style={{ fontFamily: 'Exo 2, sans-serif' }}>F1 Data Dashboard</h1>
+      <h1 style={{ fontFamily: 'Exo 2, sans-serif' }}>Formulytics - F1 Data Dashboard</h1>
 
       <img
         src="/redbull.jpg"  
