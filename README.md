@@ -1,4 +1,4 @@
-# Formulytics - F1 Data Dashboard 
+# F1 Data Dashboard 
 
 A full-stack dashboard using FastF1 (Python) and React.js to visualize Formula 1 race data, telemetry, and strategy insights.
 
